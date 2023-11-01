@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  sqlWorkout:
+    image: mysql:5.7
+    volumes:
+      - workout-mysql-data:/var/lib/mysql
+    environment: 
+      MYSQL_ROOT_PASSWORD: <your-password>
+      MYSQL_DATABASE: todos
+
+volumes:
+  workout-mysql-data:
