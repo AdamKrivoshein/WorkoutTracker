@@ -1,2 +1,1 @@
-"# WorkoutTracker" 
-"# Workout Tracker" 
+# WorkoutTracker
