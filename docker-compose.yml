@@ -1,13 +1,30 @@
 version: "3.7"
 
 services:
-  sqlWorkout:
+  sql_db:
+    container_name: sql_db
     image: mysql:5.7
     volumes:
       - workout-mysql-data:/var/lib/mysql
-    environment: 
-      MYSQL_ROOT_PASSWORD: <your-password>
+      - ./sqlstuff:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
       MYSQL_DATABASE: todos
+      #MYSQL_USER: adam
+      #MYSQL_PASSWORD: pass
+      #MYSQL_ROOT_HOST: 172.18.0.3
+    ports:
+      - "3306:3306"
+  node_server:
+    restart: on-failure
+    depends_on:
+      - sql_db
+    build: /nodejsServer
+    user: "node"
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "8888:8888"
 
 volumes:
   workout-mysql-data:
