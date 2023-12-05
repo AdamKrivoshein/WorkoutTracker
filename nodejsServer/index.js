@@ -11,6 +11,7 @@ const db = mysql.createConnection({
     password: 'admin',
     database: 'todos'
 })
+var workoutID = -1;
 
 db.connect()
 
@@ -21,18 +22,38 @@ app.get("/", (req, res) => {
 })
 
 app.post("/createExercise", (req, res) => {
-    var sql = "INSERT INTO exercise VALUES (?, ?)"
-    db.query(sql, [ 1, req.body.exerciseName ], function(err, rows, fields) {
+    var sql = "INSERT INTO exercise (exercise_name) VALUES (?)"//"INSERT INTO exercise VALUES (?, ?)"
+    db.query(sql, [ req.body.exerciseName ], function(err, rows, fields) {
     });
-    // db.query(`INSERT INTO exercise VALUES (1, ${req.body.exerciseName})`, (err, rows, fields) => {if (err) throw err})
-    res.send(`<h1>Attempted to create exercise ${req.body.exerciseName}</h1>`)
+    res.send(`Attempted to create exercise ${req.body.exerciseName} Error: ${err}`)
 })
 
-app.get("/initiailize", (req, res) => {
+app.post("/startWorkout", (req, res) => {
+    let sql = "INSERT INTO workout (workout_date) VALUES (?)"
+    db.query(sql, [ "2023-11-28" ], function(err, rows, fields) {
+    });
+    //db.query("SELECT SCOPE_IDENTITY() AS id;", function(err, rows, fields) {console.log(rows[0])});
+})
+
+app.post("/createSet", (req, res) => {
+    // Start workout if not started to get workout ID
+    //if (workoutID == -1)
+    //    workoutID = await startWorkout()
+
+    // Package up and create new set row in workout_set
+    let sql = "INSERT INTO workout_set (repetition, weight) VALUES (?, ?)"
+    let exercise = "Bench Press"
+    db.query(sql, [ req.body.repetition, req.body.weight ], function(err, rows, fields) {
+    });
+    // Response back to browser
+    res.send(`Attempted to create rep: ${req.body.repetition} and weight: ${req.body.weight}`)
+})
+
+app.get("/initialize", (req, res) => {
     db.query('USE todos', (err, rows, fields) => {if (err) throw err})
-    db.query('CREATE TABLE workout (id INT AUTO_INCREMENT NOT NULL, workout_date date, PRIMARY KEY (id))', (err, rows, fields) => {if (err) throw err})
-    db.query('CREATE TABLE workout_set (id INT AUTO_INCREMENT NOT NULL, workout_id INT, exercise_id INT, weight INT, repetitions INT, PRIMARY KEY (id), FOREIGN KEY (workout_id) REFERENCES workout(id), FOREIGN KEY (exercise_id) REFERENCES workout(id))', (err, rows, fields) => {if (err) throw err})
-    db.query('CREATE TABLE exercise (id INT AUTO_INCREMENT NOT NULL, exercise_name VARCHAR(64), PRIMARY KEY (id))', (err, rows, fields) => {if (err) throw err})
+    db.query('CREATE TABLE workout (id INT NOT NULL AUTO_INCREMENT, workout_date date, PRIMARY KEY (id))', (err, rows, fields) => {if (err) throw err})
+    db.query('CREATE TABLE workout_set (id INT NOT NULL AUTO_INCREMENT, repetition INT, weight INT, PRIMARY KEY (id))', (err, rows, fields) => {if (err) throw err}) //'CREATE TABLE workout_set (id INT NOT NULL AUTO_INCREMENT, workout_id INT, exercise_id INT, repetition INT, weight INT, PRIMARY KEY (id), FOREIGN KEY (workout_id) REFERENCES workout(id), FOREIGN KEY (exercise_id) REFERENCES workout(id))
+    db.query('CREATE TABLE exercise (id INT NOT NULL AUTO_INCREMENT, exercise_name VARCHAR(64) UNIQUE, PRIMARY KEY (id))', (err, rows, fields) => {if (err) throw err})
     res.send(`<h1>SQL Database initiated</h1>`);
 })
 
