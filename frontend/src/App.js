@@ -63,31 +63,13 @@ function SetEntryField({ title, fieldText, onTextChange }) {
   );
 }
 
-function SetEntryArea({ currentExercise }) {
-  function sendSet() {
-    console.log(`Trying to send the reps: ${currentRepsText} and weight: ${currentWeightText} of: ${currentExercise}`)
-  
-    axios.post('http://localhost:8888/createSet', {
-      repetition: currentRepsText,
-      weight: currentWeightText,
-      exercise: currentExercise
-    })
-    .then(function (response) {
-      console.log(response);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-  }
-
-  const [currentRepsText, setRepsText] = useState('CurrentReps');
-  const [currentWeightText, setWeightText] = useState('CurrentWeight');
+function SetEntryArea({ currentExercise, currentRepsText, currentWeightText, setRepsText, setWeightText, sendSet }) {
   return (
     <div style={{ flex: 1, flexDirection:"row" }}>  {/*This doesn't seem to work for inline*/}
       <SetEntryField
         title="Reps"
         fieldText={currentRepsText}
-        onTextChange={setRepsText} 
+        onTextChange={setRepsText}
         id="SetDisplay" />
       <SetEntryField
         title="Weight" 
@@ -138,6 +120,26 @@ function Navigation() {
 }
 
 function WorkoutScreen() {
+  const [currentRepsText, setRepsText] = useState('CurrentReps');
+  const [currentWeightText, setWeightText] = useState('CurrentWeight');
+
+  function sendSet() {
+    console.log(`Trying to send the reps: ${currentRepsText} and weight: ${currentWeightText} of: ${exerciseText}`)
+  
+    axios.post('http://localhost:8888/createSet', {
+      repetition: currentRepsText,
+      weight: currentWeightText,
+      exercise: exerciseText
+    })
+    .then(function (response) {
+      console.log(response);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
+
+  // Gets sets on the current exercise from the previous workout
   function getPastSets() {
     console.log(`Trying to get sets for: ${exerciseText}`)
 
@@ -160,6 +162,7 @@ function WorkoutScreen() {
     });
   }
 
+  // Sends a new exercise to the database
   function sendExercise() {
     // Sending the exercise name
     console.log(`Trying to send the ${exerciseText}`)
@@ -201,7 +204,12 @@ function WorkoutScreen() {
         rep3Text={rep3Text}
         weight3Text={weight3Text} />
       <SetEntryArea 
-        currentExercise={exerciseText} />
+        currentExercise={exerciseText} 
+        currentRepsText={currentRepsText}
+        currentWeightText={currentWeightText}
+        setRepsText={setRepsText}
+        setWeightText={setWeightText} 
+        sendSet={sendSet} />
       <currentSets />
       <Navigation />
     </div>
