@@ -26,22 +26,26 @@ function ExerciseEntry({ exerciseText, onExerciseTextChange }) {
   );
 }
 
-function PastSet({ setReps, setWeight }) {
+function PastSet({ rep, weight }) {
   return (
-    <li><p id="SetDisplay">8</p> x <p id="SetDisplay">100lbs</p></li>
+    <li><p id="SetDisplay">{rep}</p> x <p id="SetDisplay">{weight}</p></li>
   )
 }
 
-function PastTable() {
-  // const [currentRepsText, setRepsText] = useState('CurrentReps');
-  // const [currentWeightText, setWeightText] = useState('CurrentWeight');
+function PastTable({ rep1Text, weight1Text, rep2Text, weight2Text, rep3Text, weight3Text }) {
   return (
     <>
       <h3>Last time:</h3>
       <ol>
-        <PastSet />
-        <PastSet />
-        <PastSet />
+        <PastSet 
+          rep={rep1Text}
+          weight={weight1Text} />
+        <PastSet
+          rep={rep2Text}
+          weight={weight2Text} />
+        <PastSet
+          rep={rep3Text}
+          weight={weight3Text} />
       </ol>
     </>
   )
@@ -59,13 +63,14 @@ function SetEntryField({ title, fieldText, onTextChange }) {
   );
 }
 
-function SetEntryArea() {
+function SetEntryArea({ currentExercise }) {
   function sendSet() {
-    console.log(`Trying to send the reps: ${currentRepsText} and weight: ${currentWeightText}`)
+    console.log(`Trying to send the reps: ${currentRepsText} and weight: ${currentWeightText} of: ${currentExercise}`)
   
     axios.post('http://localhost:8888/createSet', {
       repetition: currentRepsText,
-      weight: currentWeightText
+      weight: currentWeightText,
+      exercise: currentExercise
     })
     .then(function (response) {
       console.log(response);
@@ -133,9 +138,31 @@ function Navigation() {
 }
 
 function WorkoutScreen() {
-  function sendExercise() {
-    console.log(`Trying to send the ${exerciseText}`)
+  function getPastSets() {
+    console.log(`Trying to get sets for: ${exerciseText}`)
+
+    let url=`http://localhost:8888/pastSets/${exerciseText}`
+    console.log(url)
   
+    axios.get(url)
+    .then(function (response) {
+      console.log(response);
+      console.log(`Reps=${response.data[0].repetition}, Weight=${response.data[0].weight}`);
+      setRep1Text(response.data[0].repetition);
+      setWeight1Text(response.data[0].weight);
+      setRep2Text(response.data[1].repetition);
+      setWeight2Text(response.data[1].weight);
+      setRep3Text(response.data[2].repetition);
+      setWeight3Text(response.data[2].weight);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+  }
+
+  function sendExercise() {
+    // Sending the exercise name
+    console.log(`Trying to send the ${exerciseText}`)
     axios.post('http://localhost:8888/createExercise', {
       exerciseName: exerciseText
     })
@@ -145,9 +172,19 @@ function WorkoutScreen() {
     .catch(function (error) {
       console.log(error);
     });
+
+    // Getting the last sets of the exercise
+    getPastSets();
   }
 
   const [exerciseText, setExerciseText] = useState('Excercise');
+  // Past set states
+  const [rep1Text, setRep1Text] = useState('rep1');
+  const [weight1Text, setWeight1Text] = useState('weight1');
+  const [rep2Text, setRep2Text] = useState('rep2');
+  const [weight2Text, setWeight2Text] = useState('weight2');
+  const [rep3Text, setRep3Text] = useState('rep3');
+  const [weight3Text, setWeight3Text] = useState('weight3');
   return (
     <div>
       <ExerciseEntry 
@@ -156,8 +193,16 @@ function WorkoutScreen() {
       <Button
         title="Start Exercise"
         handleClick={sendExercise} />
-      <PastTable />
-      <SetEntryArea />
+      <PastTable 
+        rep1Text={rep1Text}
+        weight1Text={weight1Text}
+        rep2Text={rep2Text}
+        weight2Text={weight2Text}
+        rep3Text={rep3Text}
+        weight3Text={weight3Text} />
+      <SetEntryArea 
+        currentExercise={exerciseText} />
+      <currentSets />
       <Navigation />
     </div>
   );
