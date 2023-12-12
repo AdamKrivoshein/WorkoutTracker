@@ -21,6 +21,59 @@ app.get("/", (req, res) => {
     res.send(`<h1>SQL said: ${result} </h1>`);
 })
 
+app.delete("/deleteSet/:id", (req, res) => {
+    console.log("Entering /deleteSet");
+    console.log(`Req = ${req}`);
+    console.log(`Req.body = ${req.params}`);
+    console.log(`Set req.body.id = ${req.params.id}`);
+
+    const sqlDeleteSet = "DELETE FROM workout_set WHERE id=(?)";
+    db.query(sqlDeleteSet, [ req.params.id ], function(err, rows, fields) {
+        console.log("Deleted?");
+    });
+
+    res.sendStatus(200);
+})
+
+// app.post("/createSet", (req, res) => {
+//     // // Find ID of today's workout
+//     let sqlFindWorkout = "SELECT id FROM workout WHERE workout_date=(?)"
+//     db.query(sqlFindWorkout, [ sqlDate ], function(err, workoutRows, fields) {
+
+//         // Find ID of current exercise
+//         var sqlFindExercise = "SELECT id FROM exercise WHERE exercise_name=(?)"
+//     });
+//     res.sendStatus(200);
+// })
+
+app.get("/currentSets/:exercise", (req, res) => {
+    console.log("Entering /currentSets");
+    console.log(req.params);
+    // console.log(`Req.body.exercise = ${req.body.exercise}`);
+    // Find last workout id
+    const sqlFindLastWorkoutId = "SELECT id FROM workout WHERE workout_date=(SELECT MAX(workout_date) FROM workout)"
+    db.query(sqlFindLastWorkoutId, function(err, workoutRows, fields) {
+        console.log(`CurrentSet workoutID = ${workoutRows[0].id}`);
+
+        // Find exercise id
+        // console.log(req.body.exercise);
+        const sqlFindExerciseId = "SELECT id FROM exercise WHERE exercise_name=(?)"
+        db.query(sqlFindExerciseId, [ req.params.exercise ], function(err, exerciseRows, fields) {
+            console.log(`CurrentSet exerciseID = ${exerciseRows[0].id}`);
+            console.log("hi")
+
+            let sqlFindPastSets = "SELECT id, repetition, weight FROM workout_set WHERE workout_id=(?) AND exercise_id=(?)"
+            db.query(sqlFindPastSets, [ workoutRows[0].id, exerciseRows[0].id ], function(err, setRows, fields) {
+                console.log(`CurrentSet setRows = ${setRows}`);
+                console.log(`CurrentSet setRows[0] = ${setRows[0]}`);
+                res.send(setRows);
+            });
+        });
+    });
+    // Find exercise id
+    // Find all rows with workout id and exercise id
+})
+
 app.get("/pastSets/:exercise", (req, res) => {
     console.log("Entering /pastSets");
     console.log(req.params);
@@ -28,21 +81,27 @@ app.get("/pastSets/:exercise", (req, res) => {
     // Find last workout id
     const sqlFindLastWorkoutId = "SELECT id FROM workout WHERE workout_date=(SELECT MAX(workout_date) FROM workout WHERE workout_date < ( SELECT MAX(workout_date) FROM workout))"
     db.query(sqlFindLastWorkoutId, function(err, workoutRows, fields) {
-        console.log(workoutRows[0].id);
+        console.log(workoutRows);
+        console.log(workoutRows[0]);
+        if (workoutRows[0] == null) {
+            console.log("No previous workout sets to get!");
+        } else {
+            // console.log(workoutRows[0].id);
 
-        // Find exercise id
-        // console.log(req.body.exercise);
-        const sqlFindExerciseId = "SELECT id FROM exercise WHERE exercise_name=(?)"
-        db.query(sqlFindExerciseId, [ req.params.exercise ], function(err, exerciseRows, fields) {
-            console.log(exerciseRows[0].id);
+            // Find exercise id
+            // console.log(req.body.exercise);
+            const sqlFindExerciseId = "SELECT id FROM exercise WHERE exercise_name=(?)"
+            db.query(sqlFindExerciseId, [ req.params.exercise ], function(err, exerciseRows, fields) {
+                // console.log(exerciseRows[0].id);
 
-            let sqlFindPastSets = "SELECT repetition, weight FROM workout_set WHERE workout_id=(?) AND exercise_id=(?)"
-            db.query(sqlFindPastSets, [ workoutRows[0].id, exerciseRows[0].id ], function(err, setRows, fields) {
-                console.log(setRows);
-                console.log(setRows[0]);
-                res.send(setRows);
+                let sqlFindPastSets = "SELECT repetition, weight FROM workout_set WHERE workout_id=(?) AND exercise_id=(?)"
+                db.query(sqlFindPastSets, [ workoutRows[0].id, exerciseRows[0].id ], function(err, setRows, fields) {
+                    console.log(setRows);
+                    console.log(setRows[0]);
+                    res.send(setRows);
+                });
             });
-        });
+        }
     });
     // Find exercise id
     // Find all rows with workout id and exercise id
@@ -83,8 +142,8 @@ app.post("/createSet", (req, res) => {
     let year = date.getFullYear();
     let sqlDate = `${year}-${month}-${day}`;
 
-    // console.log(req.body);
-    // console.log(req.body.exercise);
+    console.log(req.body);
+    console.log(req.body.exercise);
 
     // // Find ID of today's workout
     let sqlFindWorkout = "SELECT id FROM workout WHERE workout_date=(?)"
@@ -101,18 +160,8 @@ app.post("/createSet", (req, res) => {
             db.query(sqlInsertSet, [ workoutRows[0].id, exerciseRows[0].id, req.body.repetition, req.body.weight ], function(err, rows, fields) {
             });
         });
-
-        // let sqlInsertSet = "INSERT INTO workout_set (workout_id, exercise_id, repetition, weight) VALUES (?, ?)"
-        // db.query(sqlInsertSet, [ rows[0].id, 9002, req.body.repetition, req.body.weight ], function(err, rows, fields) {
-        // });
     });
-
-    // let sql = "INSERT INTO workout_set (repetition, weight) VALUES (?, ?)"
-    // let exercise = "Bench Press"
-    // db.query(sql, [ req.body.repetition, req.body.weight ], function(err, rows, fields) {
-    // });
-    // // Response back to browser
-    // res.send(`Attempted to create rep: ${req.body.repetition} and weight: ${req.body.weight}`)
+    res.sendStatus(200);
 })
 
 app.get("/initialize", (req, res) => {
