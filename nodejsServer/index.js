@@ -35,17 +35,6 @@ app.delete("/deleteSet/:id", (req, res) => {
     res.sendStatus(200);
 })
 
-// app.post("/createSet", (req, res) => {
-//     // // Find ID of today's workout
-//     let sqlFindWorkout = "SELECT id FROM workout WHERE workout_date=(?)"
-//     db.query(sqlFindWorkout, [ sqlDate ], function(err, workoutRows, fields) {
-
-//         // Find ID of current exercise
-//         var sqlFindExercise = "SELECT id FROM exercise WHERE exercise_name=(?)"
-//     });
-//     res.sendStatus(200);
-// })
-
 app.get("/currentSets/:exercise", (req, res) => {
     console.log("Entering /currentSets");
     console.log(req.params);
