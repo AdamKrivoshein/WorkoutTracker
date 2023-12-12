@@ -131,16 +131,27 @@ function SetEntryArea({ currentExercise, currentRepsText, currentWeightText, set
 
 function Navigation() {
   function startWorkout() {
-    console.log(`Trying to send`)
-  
-    axios.post('http://localhost:8888/startWorkout', {})
+    console.log(`Trying to start workout`)
+    
+    // First try to initialize the DB
+    axios.get('http://localhost:8888/initialize', {})
     .then(function (response) {
+      // After DB initialization startWorkout, as the tables now exist
+      axios.post('http://localhost:8888/startWorkout', {})
+      .then(function (response) {
+        console.log(response);
+      })
+      .catch(function (error) {
+        console.log(error);
+      });
+
       console.log(response);
     })
     .catch(function (error) {
       console.log(error);
     });
   }
+
   function endWorkout() {
     console.log(`Trying to send`)
   

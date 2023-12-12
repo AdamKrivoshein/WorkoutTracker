@@ -11,11 +11,21 @@ const db = mysql.createConnection({
     password: 'admin',
     database: 'todos'
 })
-var workoutID = -1;
 
 db.connect()
 
-let result = db.query('show tables')
+// let result = db.query('show tables')
+// const sqlCheckInitialized = "SELECT IF( EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'workout'), 1, 0)"//"SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'schema_name' AND table_name = 'table_name');";
+// db.query("SHOW TABLES", function(err, rows, fields) {
+//     console.log(`rows = ${rows}`);
+//     if (rows == undefined) {
+//         // db.query('USE todos', (err, rows, fields) => {if (err) throw err})
+//         db.query('CREATE TABLE workout (id INT NOT NULL AUTO_INCREMENT, workout_date date, PRIMARY KEY (id))', (err, rows, fields) => {if (err) throw err})
+//         db.query('CREATE TABLE exercise (id INT NOT NULL AUTO_INCREMENT, exercise_name VARCHAR(64) UNIQUE, PRIMARY KEY (id))', (err, rows, fields) => {if (err) throw err})
+//         db.query('CREATE TABLE workout_set (id INT NOT NULL AUTO_INCREMENT, workout_id INT, exercise_id INT, repetition INT, weight INT, PRIMARY KEY (id), FOREIGN KEY (workout_id) REFERENCES workout(id), FOREIGN KEY (exercise_id) REFERENCES exercise(id))', (err, rows, fields) => {if (err) throw err})
+//     }
+// });
+
 
 app.get("/", (req, res) => {
     res.send(`<h1>SQL said: ${result} </h1>`);
@@ -104,6 +114,24 @@ app.post("/createExercise", (req, res) => {
 })
 
 app.post("/startWorkout", (req, res) => {
+    // Initialize the db if it hasn't been
+    // db.query("SHOW TABLES", function(err, rows, fields) {
+    //     console.log(`rows = ${rows}`);
+    //     console.log(`typeof rows = ${typeof(rows)}`)
+    //     console.log(`length of rows = ${rows.length}`)
+    //     if (rows.length == 0) {
+    //         db.query('USE todos', (err, rows, fields) => {if (err) throw err})
+    //         db.query('CREATE TABLE workout (id INT NOT NULL AUTO_INCREMENT, workout_date date, PRIMARY KEY (id))', (err, rows, fields) => {if (err) throw err})
+    //         db.query('CREATE TABLE exercise (id INT NOT NULL AUTO_INCREMENT, exercise_name VARCHAR(64) UNIQUE, PRIMARY KEY (id))', (err, rows, fields) => {if (err) throw err})
+    //         db.query('CREATE TABLE workout_set (id INT NOT NULL AUTO_INCREMENT, workout_id INT, exercise_id INT, repetition INT, weight INT, PRIMARY KEY (id), FOREIGN KEY (workout_id) REFERENCES workout(id), FOREIGN KEY (exercise_id) REFERENCES exercise(id))', (err, rows, fields) => {if (err) throw err})
+    //         db.query("SHOW TABLES", function(err, rows, fields) {
+    //             console.log(`2 rows = ${rows}`);
+    //             console.log(`2 typeof rows = ${typeof(rows)}`)
+    //             console.log(`2 length of rows = ${rows.length}`)
+    //         })
+    //     }
+    // });
+
     // Get and format date for SQL
     const date = new Date();
     let day = date.getDate();
@@ -154,11 +182,23 @@ app.post("/createSet", (req, res) => {
 })
 
 app.get("/initialize", (req, res) => {
-    db.query('USE todos', (err, rows, fields) => {if (err) throw err})
-    db.query('CREATE TABLE workout (id INT NOT NULL AUTO_INCREMENT, workout_date date, PRIMARY KEY (id))', (err, rows, fields) => {if (err) throw err})
-    db.query('CREATE TABLE exercise (id INT NOT NULL AUTO_INCREMENT, exercise_name VARCHAR(64) UNIQUE, PRIMARY KEY (id))', (err, rows, fields) => {if (err) throw err})
-    db.query('CREATE TABLE workout_set (id INT NOT NULL AUTO_INCREMENT, workout_id INT, exercise_id INT, repetition INT, weight INT, PRIMARY KEY (id), FOREIGN KEY (workout_id) REFERENCES workout(id), FOREIGN KEY (exercise_id) REFERENCES exercise(id))', (err, rows, fields) => {if (err) throw err}) // db.query('CREATE TABLE workout_set (id INT NOT NULL AUTO_INCREMENT, repetition INT, weight INT, PRIMARY KEY (id))', (err, rows, fields) => {if (err) throw err})
-    res.send(`<h1>SQL Database initiated</h1>`);
+    db.query("SHOW TABLES", function(err, rows, fields) {
+        console.log(`rows = ${rows}`);
+        console.log(`typeof rows = ${typeof(rows)}`)
+        console.log(`length of rows = ${rows.length}`)
+        if (rows.length == 0) {
+            db.query('USE todos', (err, rows, fields) => {if (err) throw err})
+            db.query('CREATE TABLE workout (id INT NOT NULL AUTO_INCREMENT, workout_date date, PRIMARY KEY (id))', (err, rows, fields) => {if (err) throw err})
+            db.query('CREATE TABLE exercise (id INT NOT NULL AUTO_INCREMENT, exercise_name VARCHAR(64) UNIQUE, PRIMARY KEY (id))', (err, rows, fields) => {if (err) throw err})
+            db.query('CREATE TABLE workout_set (id INT NOT NULL AUTO_INCREMENT, workout_id INT, exercise_id INT, repetition INT, weight INT, PRIMARY KEY (id), FOREIGN KEY (workout_id) REFERENCES workout(id), FOREIGN KEY (exercise_id) REFERENCES exercise(id))', (err, rows, fields) => {if (err) throw err})
+            db.query("SHOW TABLES", function(err, rows, fields) {
+                console.log(`2 rows = ${rows}`);
+                console.log(`2 typeof rows = ${typeof(rows)}`)
+                console.log(`2 length of rows = ${rows.length}`)
+            })
+        }
+    });
+    res.sendStatus(200);
 })
 
 app.get("/workout", (req, res) => {
