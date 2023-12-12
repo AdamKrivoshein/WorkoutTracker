@@ -1,0 +1,18 @@
+.mainDiv {
+  background-color: #A9EDDB;
+  padding: 40px;
+  margin: 0 auto;
+  margin-top: 40px;
+  width: 450px;
+  text-align: center;
+  border-radius: 20px;
+}
+
+ul {
+  list-style-type: none;
+}
+
+.setEntry {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}

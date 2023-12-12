@@ -1,7 +1,6 @@
-import logo from './logo.svg';
 import { useState } from 'react';
 import axios from "axios";
-import './App.css';
+import './style.css';
 
 function Button({ title, handleClick }) {
   return (
@@ -43,7 +42,7 @@ function CurrentSet({ id, rep, weight, refreshSets }) {
   }
 
   return (
-    <li><p id="SetDisplay">{rep}</p> x <p id="SetDisplay">{weight} </p><Button title={"Delete"} handleClick={DeleteSet} /></li>
+    <li>{rep} x {weight} <Button title={"Delete"} handleClick={DeleteSet} /></li>
   )
 }
 
@@ -51,8 +50,8 @@ function CurrentSets({ id1, rep1, weight1, id2, rep2, weight2, id3, rep3, weight
   return (
     <>
       <h3>Sets so far:</h3>
-      <ol>
-        <CurrentSet 
+      <ul>
+        <CurrentSet
           id={id1}
           rep={rep1}
           weight={weight1} 
@@ -67,14 +66,14 @@ function CurrentSets({ id1, rep1, weight1, id2, rep2, weight2, id3, rep3, weight
           rep={rep3}
           weight={weight3}
           refreshSets={refreshSets} />
-      </ol>
+      </ul>
     </>
   )
 }
 
 function PastSet({ rep, weight }) {
   return (
-    <li><p id="SetDisplay">{rep}</p> x <p id="SetDisplay">{weight}</p></li>
+    <li>{rep} x {weight}</li>
   )
 }
 
@@ -82,8 +81,8 @@ function PastTable({ rep1Text, weight1Text, rep2Text, weight2Text, rep3Text, wei
   return (
     <>
       <h3>Last time:</h3>
-      <ol>
-        <PastSet 
+      <ul>
+        <PastSet
           rep={rep1Text}
           weight={weight1Text} />
         <PastSet
@@ -92,7 +91,7 @@ function PastTable({ rep1Text, weight1Text, rep2Text, weight2Text, rep3Text, wei
         <PastSet
           rep={rep3Text}
           weight={weight3Text} />
-      </ol>
+      </ul>
     </>
   )
 }
@@ -111,7 +110,7 @@ function SetEntryField({ title, fieldText, onTextChange }) {
 
 function SetEntryArea({ currentExercise, currentRepsText, currentWeightText, setRepsText, setWeightText, sendSet }) {
   return (
-    <div style={{ flex: 1, flexDirection:"row" }}>  {/*This doesn't seem to work for inline*/}
+    <div classname="setEntry">
       <SetEntryField
         title="Reps"
         fieldText={currentRepsText}
@@ -200,8 +199,19 @@ function WorkoutScreen() {
   
     axios.get(url)
     .then(function (response) {
-      console.log(response);
-      console.log(`ID=${response.data[0].id}, Reps=${response.data[0].repetition}, Weight=${response.data[0].weight}`);
+      console.log("Pre response log");
+      // console.log(response);
+      console.log("Post response log");
+      console.log(`response.data = ${response.data}`);
+      if (response.data.length == 0) {
+        // setCurrSetId1(0);
+        // setCurrSetReps1('n/a');
+        // setCurrSetWeight1('n/a');
+        console.log("I like to destroy muscle fibers systematically");
+      } else {
+        // console.log(`ID=${response.data[0].id}, Reps=${response.data[0].repetition}, Weight=${response.data[0].weight}`);
+        console.log("Idk what's happening");
+      }
 
       // Reset current sets to empty before repopulating
       setCurrSetId1(0);
@@ -309,7 +319,7 @@ function WorkoutScreen() {
   const [rep3Text, setRep3Text] = useState('n/a');
   const [weight3Text, setWeight3Text] = useState('n/a');
   return (
-    <div>
+    <div className={"mainDiv"}>
       <ExerciseEntry 
         exerciseText={exerciseText}
         onExerciseTextChange={setExerciseText} />
