@@ -151,26 +151,26 @@ function Navigation() {
     });
   }
 
-  function endWorkout() {
-    console.log(`Trying to send`)
+//   function endWorkout() {
+//     console.log(`Trying to send`)
   
-    axios.post('http://localhost:8888/endWorkout', {})
-    .then(function (response) {
-      console.log(response);
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-  }
+//     axios.post('http://localhost:8888/endWorkout', {})
+//     .then(function (response) {
+//       console.log(response);
+//     })
+//     .catch(function (error) {
+//       console.log(error);
+//     });
+//   }
 
   return (
     <>
       <Button 
         title="Start Workout"
         handleClick={startWorkout}/>
-      <Button 
+      {/* <Button 
         title="Finish Workout"
-        handleClick={endWorkout}/>
+        handleClick={endWorkout}/> */}
     </>
   )
 }
@@ -200,16 +200,11 @@ function WorkoutScreen() {
     axios.get(url)
     .then(function (response) {
       console.log("Pre response log");
-      // console.log(response);
       console.log("Post response log");
       console.log(`response.data = ${response.data}`);
       if (response.data.length == 0) {
-        // setCurrSetId1(0);
-        // setCurrSetReps1('n/a');
-        // setCurrSetWeight1('n/a');
         console.log("I like to destroy muscle fibers systematically");
       } else {
-        // console.log(`ID=${response.data[0].id}, Reps=${response.data[0].repetition}, Weight=${response.data[0].weight}`);
         console.log("Idk what's happening");
       }
 
